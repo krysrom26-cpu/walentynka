@@ -1,9 +1,10 @@
 import streamlit as st
-import streamlit.components.v1 as components
+import random
 
+# ================== KONFIGURACJA ==================
 st.set_page_config(page_title="Walentynka?", page_icon="❤️")
 
-# CSS
+# ================== STYL ==================
 st.markdown("""
 <style>
 .stApp {
@@ -12,113 +13,49 @@ st.markdown("""
 header, footer, #MainMenu {
     visibility: hidden;
 }
+h1, h2 {
+    color: #d63384;
+    text-shadow: 2px 2px white;
+    text-align: center;
+}
+div.stButton > button {
+    font-size: 1.3rem;
+    border-radius: 50px;
+    padding: 15px 35px;
+    border: none;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# HTML + JS (bez obrazka!)
-html_code = """
-<!DOCTYPE html>
-<html>
-<head>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+# ================== STAN APLIKACJI ==================
+if "accepted" not in st.session_state:
+    st.session_state.accepted = False
 
-    <style>
-        body {
-            background-color: #ffc0cb;
-            font-family: 'Pacifico', cursive;
-            margin: 0;
-            text-align: center;
-        }
+# ================== WIDOK STARTOWY ==================
+if not st.session_state.accepted:
+    st.markdown("## Zostaniesz moją Walentynką? ❤️")
 
-        h1 {
-            color: #d63384;
-            font-size: 2.5rem;
-            text-shadow: 2px 2px white;
-        }
+    # losowa pozycja przycisku "Nie"
+    left_gap = random.randint(1, 4)
+    right_gap = random.randint(1, 4)
 
-        button {
-            padding: 15px 35px;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Pacifico', cursive;
-            margin: 20px;
-        }
+    cols = st.columns([left_gap, 2, right_gap])
 
-        #yesBtn {
-            background-color: #ff4d6d;
-            color: white;
-        }
+    # TAK
+    with cols[1]:
+        if st.button("TAK! 💖"):
+            st.session_state.accepted = True
+            st.balloons()  # 🎉 konfetti
 
-        #noBtn {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            position: absolute;
-        }
-    </style>
-</head>
+    # NIE (ucieka)
+    if random.choice([True, False]):
+        with cols[0]:
+            st.button("Nie 😅")
+    else:
+        with cols[2]:
+            st.button("Nie 🙈")
 
-<body>
-
-<h1>Zostaniesz moją Walentynką? ❤️</h1>
-<button id="yesBtn">TAK!</button>
-<button id="noBtn">Nie</button>
-
-<script>
-    const noBtn = document.getElementById("noBtn");
-    const yesBtn = document.getElementById("yesBtn");
-
-    noBtn.addEventListener("mouseover", () => {
-        const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-        const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-        noBtn.style.left = x + "px";
-        noBtn.style.top = y + "px";
-    });
-
-    function fireConfetti() {
-        const end = Date.now() + 3000;
-        (function frame() {
-            confetti({
-                particleCount: 6,
-                spread: 70,
-                origin: { x: Math.random(), y: 0.6 }
-            });
-            if (Date.now() < end) requestAnimationFrame(frame);
-        })();
-    }
-
-    yesBtn.addEventListener("click", () => {
-        fireConfetti();
-        window.parent.postMessage("SHOW_IMAGE", "*");
-    });
-</script>
-
-</body>
-</html>
-"""
-
-components.html(html_code, height=300)
-
-# 👇 STREAMLIT CZĘŚĆ — OBRAZEK
-if "show" not in st.session_state:
-    st.session_state.show = False
-
-# nasłuchiwanie sygnału
-st.markdown("""
-<script>
-window.addEventListener("message", (event) => {
-    if (event.data === "SHOW_IMAGE") {
-        fetch("/_stcore/message?show=true");
-    }
-});
-</script>
-""", unsafe_allow_html=True)
-
-# fallback prosty (klik w checkbox)
-show = st.checkbox("")
-
-if show or st.session_state.show:
+# ================== WIDOK PO KLIKNIĘCIU TAK ==================
+else:
     st.markdown("## HURRA! Wiedziałem! 😍")
     st.image("hurraa.jpg", use_container_width=True)
