@@ -2,9 +2,9 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 # Konfiguracja strony
-st.set_page_config(page_title="Walentynkowe Pytanie", page_icon="❤️", layout="centered")
+st.set_page_config(page_title="Walentynka?", page_icon="❤️")
 
-# Stylizacja tła aplikacji na różowo za pomocą CSS
+# CSS dla różowego tła i ukrycia menu Streamlit
 st.markdown("""
     <style>
     .stApp {
@@ -16,7 +16,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Cała logika aplikacji (pytanie, uciekający przycisk i GIF) w jednym komponencie HTML/JS
+# Kod HTML, CSS i JS dla efektu "lewitującego" przycisku
 html_code = """
 <!DOCTYPE html>
 <html>
@@ -26,91 +26,93 @@ html_code = """
         body {
             background-color: #ffc0cb;
             font-family: 'Pacifico', cursive;
+            margin: 0;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            overflow: hidden;
         }
         #container {
             text-align: center;
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
         }
         h1 {
             color: #d63384;
-            font-size: 3rem;
-            margin-bottom: 50px;
+            font-size: 2.5rem;
             text-shadow: 2px 2px white;
         }
-        .buttons {
+        .btn-container {
+            margin-top: 30px;
             position: relative;
-            width: 100%;
-            height: 200px;
+            height: 300px;
+            width: 100vw;
         }
         button {
-            padding: 15px 30px;
-            font-size: 1.5rem;
-            border-radius: 15px;
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            border-radius: 50px;
             border: none;
             cursor: pointer;
             font-family: 'Pacifico', cursive;
-            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         #yesBtn {
             background-color: #ff4d6d;
             color: white;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-120%);
+            z-index: 10;
         }
         #noBtn {
-            background-color: #6c757d;
-            color: white;
+            background-color: #f8f9fa;
+            color: #6c757d;
             position: absolute;
-            left: 50%;
-            transform: translateX(20%);
+            transition: all 0.2s ease;
         }
-        #success-screen {
+        .gif-container {
             display: none;
+            text-align: center;
         }
-        .jump-gif {
-            width: 300px;
+        img {
+            width: 80%;
+            max-width: 500px;
             border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body>
 
-    <div id="container">
-        <div id="proposal-screen">
-            <h1>Zostaniesz moją Walentynką? ❤️</h1>
-            <div class="buttons">
-                <button id="yesBtn">TAK!</button>
-                <button id="noBtn">Nie</button>
-            </div>
+    <div id="main-content">
+        <h1>Zostaniesz moją Walentynką? ❤️</h1>
+        <div class="btn-container">
+            <button id="yesBtn">TAK!</button>
+            <button id="noBtn">Nie</button>
         </div>
+    </div>
 
-        <div id="success-screen">
-            <h1>HURRA! Wiedziałem! 😍</h1>
-            <img class="jump-gif" src="https://media.giphy.com/media/lMameLqvJo9UCW8d6Z/giphy.gif" alt="Cieszący się facet">
-        </div>
+    <div id="success-content" class="gif-container">
+        <h1>HURRA! Wiedziałem! 😍</h1>
+        <img src="https://media1.tenor.com/m/Y-V_87r0Z3AAAAAd/ufc.gif" alt="UFC Celebration">
     </div>
 
     <script>
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
-        const proposalScreen = document.getElementById('proposal-screen');
-        const successScreen = document.getElementById('success-screen');
+        const mainContent = document.getElementById('main-content');
+        const successContent = document.getElementById('success-content');
 
-        // Funkcja uciekania przycisku "Nie"
+        // Funkcja sprawiająca, że przycisk "Nie" lewituje (porusza się sam)
+        let angle = 0;
+        function animateNoButton() {
+            if (noBtn.style.position !== 'fixed') {
+                const x = Math.sin(angle) * 20;
+                const y = Math.cos(angle) * 10;
+                noBtn.style.transform = `translate(${x}px, ${y}px)`;
+                angle += 0.05;
+                requestAnimationFrame(animateNoButton);
+            }
+        }
+        animateNoButton();
+
+        // Uciekanie przy próbie najechania myszką
         noBtn.addEventListener('mouseover', function() {
             const x = Math.random() * (window.innerWidth - this.offsetWidth);
             const y = Math.random() * (window.innerHeight - this.offsetHeight);
@@ -118,18 +120,18 @@ html_code = """
             this.style.position = 'fixed';
             this.style.left = x + 'px';
             this.style.top = y + 'px';
-            this.style.transform = 'none'; // usuwamy centrowanie przy ruchu
+            this.style.transform = 'scale(0.8)'; // Lekko się zmniejsza przy ucieczce
         });
 
-        // Obsługa kliknięcia "TAK"
+        // Kliknięcie TAK
         yesBtn.addEventListener('click', function() {
-            proposalScreen.style.display = 'none';
-            successScreen.style.display = 'block';
+            mainContent.style.display = 'none';
+            successContent.style.display = 'block';
         });
     </script>
 </body>
 </html>
 """
 
-# Wyświetlenie komponentu na całą szerokość
-components.html(html_code, height=600)
+# Renderowanie komponentu
+components.html(html_code, height=800)
