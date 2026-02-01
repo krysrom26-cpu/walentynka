@@ -4,11 +4,11 @@ import base64
 
 st.set_page_config(page_title="Walentynka?", page_icon="❤️")
 
-# ================== OBRAZ JPG → BASE64 ==================
+# ====== JPG → BASE64 ======
 with open("hurraa.jpg", "rb") as f:
     img_base64 = base64.b64encode(f.read()).decode()
 
-# ================== STYL STREAMLIT ==================
+# ====== STYL STREAMLIT ======
 st.markdown("""
 <style>
 .stApp {
@@ -20,7 +20,7 @@ header, footer, #MainMenu {
 </style>
 """, unsafe_allow_html=True)
 
-# ================== HTML + CSS + JS ==================
+# ====== HTML + CSS + JS ======
 html_code = f"""
 <!DOCTYPE html>
 <html>
@@ -75,6 +75,8 @@ html_code = f"""
             background-color: #f8f9fa;
             color: #6c757d;
             position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
         }}
 
         #success {{
@@ -112,10 +114,14 @@ html_code = f"""
     const question = document.getElementById("question");
     const success = document.getElementById("success");
 
-    // UCIEKAJĄCE "NIE" — JAK WCZEŚNIEJ
-    noBtn.addEventListener("mouseover", () => {{
-        const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-        const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+    // 👉 NIE UCIEKA PRZY NAJECHANIU, ALE NIGDY NIE ZNIKA
+    noBtn.addEventListener("mouseenter", () => {{
+        const maxX = window.innerWidth - noBtn.offsetWidth;
+        const maxY = window.innerHeight - noBtn.offsetHeight;
+
+        const x = Math.random() * maxX;
+        const y = Math.random() * maxY;
+
         noBtn.style.left = x + "px";
         noBtn.style.top = y + "px";
     }});
@@ -133,7 +139,7 @@ html_code = f"""
         }})();
     }}
 
-    // KLIK TAK
+    // TAK → SUKCES
     yesBtn.addEventListener("click", () => {{
         question.style.display = "none";
         success.style.display = "block";
