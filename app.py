@@ -78,7 +78,7 @@ html_code = """
 
         img {
             width: 80%;
-            max-width: 450px;
+            max-width: 500px;
             margin-top: 20px;
             border-radius: 20px;
         }
@@ -96,8 +96,8 @@ html_code = """
 </div>
 
 <div id="success">
-    <h1>HURRRA! Wiedziałem! 😍</h1>
-    <img src="ufc.gif" alt="Celebration GIF">
+    <h1>HURRA! Wiedziałem! 😍</h1>
+    <img src="hurraa.jpg" alt="Hurraa Celebration">
 </div>
 
 <script>
@@ -114,7 +114,7 @@ html_code = """
         noBtn.style.top = y + "px";
     });
 
-    // Konfetti
+    // Konfetti 🎉
     function fireConfetti() {
         const duration = 3000;
         const end = Date.now() + duration;
