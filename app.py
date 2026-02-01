@@ -1,10 +1,14 @@
 import streamlit as st
-import random
+import streamlit.components.v1 as components
+import base64
 
-# ================== KONFIGURACJA ==================
 st.set_page_config(page_title="Walentynka?", page_icon="❤️")
 
-# ================== STYL ==================
+# ================== OBRAZ JPG → BASE64 ==================
+with open("hurraa.jpg", "rb") as f:
+    img_base64 = base64.b64encode(f.read()).decode()
+
+# ================== STYL STREAMLIT ==================
 st.markdown("""
 <style>
 .stApp {
@@ -13,49 +17,132 @@ st.markdown("""
 header, footer, #MainMenu {
     visibility: hidden;
 }
-h1, h2 {
-    color: #d63384;
-    text-shadow: 2px 2px white;
-    text-align: center;
-}
-div.stButton > button {
-    font-size: 1.3rem;
-    border-radius: 50px;
-    padding: 15px 35px;
-    border: none;
-}
 </style>
 """, unsafe_allow_html=True)
 
-# ================== STAN APLIKACJI ==================
-if "accepted" not in st.session_state:
-    st.session_state.accepted = False
+# ================== HTML + CSS + JS ==================
+html_code = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-# ================== WIDOK STARTOWY ==================
-if not st.session_state.accepted:
-    st.markdown("## Zostaniesz moją Walentynką? ❤️")
+    <style>
+        body {{
+            background-color: #ffc0cb;
+            font-family: 'Pacifico', cursive;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }}
 
-    # losowa pozycja przycisku "Nie"
-    left_gap = random.randint(1, 4)
-    right_gap = random.randint(1, 4)
+        h1 {{
+            color: #d63384;
+            font-size: 2.6rem;
+            text-shadow: 2px 2px white;
+            text-align: center;
+        }}
 
-    cols = st.columns([left_gap, 2, right_gap])
+        .btn-container {{
+            margin-top: 30px;
+            position: relative;
+            height: 300px;
+            width: 100vw;
+            text-align: center;
+        }}
 
-    # TAK
-    with cols[1]:
-        if st.button("TAK! 💖"):
-            st.session_state.accepted = True
-            st.balloons()  # 🎉 konfetti
+        button {{
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Pacifico', cursive;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }}
 
-    # NIE (ucieka)
-    if random.choice([True, False]):
-        with cols[0]:
-            st.button("Nie 😅")
-    else:
-        with cols[2]:
-            st.button("Nie 🙈")
+        #yesBtn {{
+            background-color: #ff4d6d;
+            color: white;
+            z-index: 10;
+        }}
 
-# ================== WIDOK PO KLIKNIĘCIU TAK ==================
-else:
-    st.markdown("## HURRA! Wiedziałem! 😍")
-    st.image("hurraa.jpg", use_container_width=True)
+        #noBtn {{
+            background-color: #f8f9fa;
+            color: #6c757d;
+            position: absolute;
+        }}
+
+        #success {{
+            display: none;
+            text-align: center;
+        }}
+
+        img {{
+            width: 80%;
+            max-width: 500px;
+            border-radius: 20px;
+            margin-top: 20px;
+        }}
+    </style>
+</head>
+
+<body>
+
+<div id="question">
+    <h1>Zostaniesz moją Walentynką? ❤️</h1>
+    <div class="btn-container">
+        <button id="yesBtn">TAK!</button>
+        <button id="noBtn">Nie</button>
+    </div>
+</div>
+
+<div id="success">
+    <h1>HURRA! Wiedziałem! 😍</h1>
+    <img src="data:image/jpeg;base64,{img_base64}">
+</div>
+
+<script>
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+    const question = document.getElementById("question");
+    const success = document.getElementById("success");
+
+    // UCIEKAJĄCE "NIE" — JAK WCZEŚNIEJ
+    noBtn.addEventListener("mouseover", () => {{
+        const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+        const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+        noBtn.style.left = x + "px";
+        noBtn.style.top = y + "px";
+    }});
+
+    // CONFETTI
+    function fireConfetti() {{
+        const end = Date.now() + 3000;
+        (function frame() {{
+            confetti({{
+                particleCount: 7,
+                spread: 70,
+                origin: {{ x: Math.random(), y: 0.6 }}
+            }});
+            if (Date.now() < end) requestAnimationFrame(frame);
+        }})();
+    }}
+
+    // KLIK TAK
+    yesBtn.addEventListener("click", () => {{
+        question.style.display = "none";
+        success.style.display = "block";
+        fireConfetti();
+    }});
+</script>
+
+</body>
+</html>
+"""
+
+components.html(html_code, height=800)
